@@ -1,0 +1,88 @@
+:root {
+  --vi-ink: #0b0714;
+  --vi-ink-2: #150d24;
+  --vi-purple: #2d1b4e;
+  --vi-magenta: #ff2d78;
+  --vi-orange: #ff7a3d;
+  --vi-amber: #ffc24b;
+  --vi-cyan: #22d3ee;
+  --vi-chrome: #e8e4f0;
+  --vi-muted: #8b7fa8;
+
+  --vi-sunset: linear-gradient(160deg, #ff2d78 0%, #ff7a3d 55%, #ffc24b 100%);
+  --vi-glass: rgba(255, 255, 255, 0.06);
+  --vi-hairline: rgba(255, 255, 255, 0.12);
+
+  --vi-radius-phone: 44px;
+  --vi-radius-lg: 20px;
+  --vi-radius-md: 12px;
+  --vi-bezel: 6px;
+
+  --vi-display: 'Archivo Black', system-ui, sans-serif;
+  --vi-ui: 'Inter', system-ui, -apple-system, sans-serif;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(120% 80% at 50% 0%, #3a1d5c 0%, transparent 60%),
+    var(--vi-ink);
+  color: var(--vi-chrome);
+  font-family: var(--vi-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.vi-display {
+  font-family: var(--vi-display);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.vi-gradient-text {
+  background: var(--vi-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.vi-btn {
+  font-family: var(--vi-ui);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--vi-hairline);
+  background: var(--vi-glass);
+  color: var(--vi-chrome);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.vi-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.vi-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vi-btn--primary {
+  background: var(--vi-sunset);
+  border-color: transparent;
+  color: #1a0b16;
+}
