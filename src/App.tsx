@@ -1,113 +1,97 @@
 import { useRef, useState } from 'react';
+import PhoneShell from './components/PhoneShell';
+import BootScreen from './components/BootScreen';
+import LockScreen from './components/LockScreen';
+import StatusBar from './components/StatusBar';
+import AppGrid from './components/AppGrid';
+import CameraRoll from './components/CameraRoll';
 import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
-import { downloadDataUrl, fileToDataUrl } from './lib/image';
-
-const SEED_IMAGE =
-  'data:image/svg+xml;base64,' +
-  btoa(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080">
-      <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#FF2D78"/><stop offset="55%" stop-color="#FF7A3D"/>
-        <stop offset="100%" stop-color="#FFC24B"/></linearGradient></defs>
-      <rect width="1080" height="1080" fill="url(#g)"/>
-      <circle cx="540" cy="620" r="210" fill="#FFF3C4" opacity="0.85"/>
-      <rect y="820" width="1080" height="260" fill="#2D1B4E"/>
-    </svg>`
-  );
+import { SEED_ROLL } from './lib/seed';
+import type { AppId, RollPhoto, Screen } from './types';
 
 export default function App() {
+  const [screen, setScreen] = useState<Screen>('boot');
+  const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
+  const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
+  const [status, setStatus] = useState('');
+  const wantedLevel = 0;
+
   const editorRef = useRef<PhotoEditorHandle>(null);
-  const [image, setImage] = useState(SEED_IMAGE);
-  const [status, setStatus] = useState('Booting editor…');
-  const [saved, setSaved] = useState<string | null>(null);
 
-  const handleSave = ({ dataUrl, blob }: SavedImage) => {
-    setSaved(dataUrl);
-    setStatus(`Saved · ${Math.round(blob.size / 1024)}KB`);
+  const openApp = (id: AppId) => {
+    if (id === 'camera') setScreen('roll');
   };
 
-  const handleUpload = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      if (editorRef.current?.hasChanges()) {
-        const ok = window.confirm('Loading a new photo discards your current edits. Continue?');
-        if (!ok) return;
-      }
-      setImage(await fileToDataUrl(file));
-      setStatus('New photo loaded');
-    } catch (error) {
-      setStatus((error as Error).message);
-    }
+  const openPhoto = (photo: RollPhoto) => {
+    setActivePhoto(photo);
+    setScreen('editor');
   };
 
-  const handleGrab = () => {
-    const dataUrl = editorRef.current?.getImage();
-    if (!dataUrl) {
-      setStatus('Editor is not ready yet.');
-      return;
-    }
-    downloadDataUrl(dataUrl, 'snapmatic-vi.png');
-    setStatus('Exported current canvas');
+  const handleUpload = (photo: RollPhoto) => {
+    setRoll((prev) => [photo, ...prev]);
+    openPhoto(photo);
+  };
+
+  const handleSave = ({ dataUrl }: SavedImage) => {
+    const saved: RollPhoto = { id: `edit-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Edited' };
+    setRoll((prev) => [saved, ...prev]);
+    setStatus('Saved to camera roll');
+    setScreen('roll');
   };
 
   return (
-    <main style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 64px' }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 className="vi-display" style={{ fontSize: 44, margin: 0 }}>
-          <span className="vi-gradient-text">Snapmatic VI</span>
-        </h1>
-        <p style={{ color: 'var(--vi-muted)', marginTop: 8, fontSize: 15 }}>
-          Day 1 harness — verifying the editor round-trip before the phone shell lands.
-        </p>
-      </header>
+    <main className="vi-stage">
+      <PhoneShell>
+        {screen === 'boot' && <BootScreen onDone={() => setScreen('lock')} />}
 
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
-        <label className="vi-btn" style={{ display: 'inline-flex', alignItems: 'center' }}>
-          Load photo
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={(e) => handleUpload(e.target.files?.[0])}
-          />
-        </label>
-        <button className="vi-btn" onClick={handleGrab}>
-          getImage()
-        </button>
-        <button
-          className="vi-btn"
-          onClick={() => setStatus(editorRef.current?.hasChanges() ? 'Unsaved edits' : 'Clean')}
-        >
-          hasChanges()
-        </button>
-        <button className="vi-btn" onClick={() => editorRef.current?.reset(SEED_IMAGE)}>
-          reset()
-        </button>
-      </div>
+        {screen === 'lock' && <LockScreen onUnlock={() => setScreen('home')} wantedLevel={wantedLevel} />}
 
-      <PhotoEditor
-        ref={editorRef}
-        image={image}
-        onSave={handleSave}
-        onCancel={() => setStatus('Cancelled')}
-        onReady={() => setStatus('Editor ready')}
-        onFailure={(message) => setStatus(message)}
-      />
+        {screen === 'home' && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <div className="vi-home">
+              <div className="vi-home__title vi-display vi-gradient-text">Leonida</div>
+              <AppGrid onOpen={openApp} />
+            </div>
+          </>
+        )}
 
-      <p style={{ marginTop: 16, fontSize: 14, color: 'var(--vi-amber)' }}>{status}</p>
+        {screen === 'roll' && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <CameraRoll
+              photos={roll}
+              onSelect={openPhoto}
+              onUpload={handleUpload}
+              onBack={() => setScreen('home')}
+              onUploadError={setStatus}
+            />
+          </>
+        )}
 
-      {saved && (
-        <section style={{ marginTop: 24 }}>
-          <h2 className="vi-display" style={{ fontSize: 18 }}>
-            Last save
-          </h2>
-          <img
-            src={saved}
-            alt="Last saved edit"
-            style={{ maxWidth: 320, borderRadius: 'var(--vi-radius-md)', border: '1px solid var(--vi-hairline)' }}
-          />
-        </section>
-      )}
+        {screen === 'editor' && activePhoto && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <div className="vi-editorscreen">
+              <div className="vi-editorscreen__header">
+                <button className="vi-iconbtn" onClick={() => setScreen('roll')} aria-label="Back">
+                  ←
+                </button>
+                <span className="vi-editorscreen__title">Edit</span>
+              </div>
+              <PhotoEditor
+                ref={editorRef}
+                image={activePhoto.dataUrl}
+                minHeight={460}
+                onSave={handleSave}
+                onFailure={setStatus}
+              />
+            </div>
+          </>
+        )}
+      </PhoneShell>
+
+      {status && <p className="vi-toast">{status}</p>}
     </main>
   );
 }
