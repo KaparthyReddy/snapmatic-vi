@@ -363,21 +363,60 @@ body {
 }
 
 .vi-toast {
-  position: fixed;
-  bottom: 24px;
+  position: absolute;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--vi-glass);
   border: 1px solid var(--vi-hairline);
   padding: 8px 16px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--vi-amber);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
+  white-space: nowrap;
+  z-index: 20;
 }
 
 .vi-toast--visible {
   opacity: 1;
+}
+
+.vi-phone__screen {
+  position: relative;
+}
+
+.vi-editorscreen__header {
+  gap: 8px;
+}
+
+.vi-editorscreen__preview {
+  margin-left: auto;
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+.vi-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--vi-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vi-preview__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.vi-preview__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 31;
 }
