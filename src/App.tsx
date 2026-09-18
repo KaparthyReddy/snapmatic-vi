@@ -1,25 +1,26 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import PhoneShell from './components/PhoneShell';
 import BootScreen from './components/BootScreen';
 import LockScreen from './components/LockScreen';
 import StatusBar from './components/StatusBar';
 import AppGrid from './components/AppGrid';
 import CameraRoll from './components/CameraRoll';
-import PhotoEditor, { type SavedImage } from './components/PhotoEditor';
-import ScaledEditor from './components/ScaledEditor';
+import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
+import PreviewOverlay from './components/PreviewOverlay';
 import { useToast } from './hooks/useToast';
 import { SEED_ROLL } from './lib/seed';
 import type { AppId, RollPhoto, Screen } from './types';
 
-const EDITOR_BASE_WIDTH = 860;
-const EDITOR_BASE_HEIGHT = 640;
+const EDITOR_MIN_HEIGHT = 520;
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const wantedLevel = 0;
   const { message: toastMessage, visible: toastVisible, showToast } = useToast();
+  const editorRef = useRef<PhotoEditorHandle>(null);
 
   const openApp = (id: AppId) => {
     if (id === 'camera') setScreen('roll');
@@ -42,9 +43,22 @@ export default function App() {
     setScreen('roll');
   };
 
+  const handlePreview = () => {
+    const dataUrl = editorRef.current?.getImage();
+    if (!dataUrl) {
+      showToast('Editor is not ready yet');
+      return;
+    }
+    setPreviewUrl(dataUrl);
+  };
+
+  const toastNode = (
+    <p className={`vi-toast${toastVisible ? ' vi-toast--visible' : ''}`}>{toastMessage}</p>
+  );
+
   return (
     <main className="vi-stage">
-      <PhoneShell>
+      <PhoneShell toast={toastNode}>
         {screen === 'boot' && <BootScreen onDone={() => setScreen('lock')} />}
 
         {screen === 'lock' && <LockScreen onUnlock={() => setScreen('home')} wantedLevel={wantedLevel} />}
@@ -81,21 +95,22 @@ export default function App() {
                   ←
                 </button>
                 <span className="vi-editorscreen__title">Edit</span>
+                <button className="vi-btn vi-editorscreen__preview" onClick={handlePreview}>
+                  Preview
+                </button>
               </div>
-              <ScaledEditor baseWidth={EDITOR_BASE_WIDTH} baseHeight={EDITOR_BASE_HEIGHT}>
-                <PhotoEditor
-                  image={activePhoto.dataUrl}
-                  minHeight={EDITOR_BASE_HEIGHT}
-                  onSave={handleSave}
-                  onFailure={showToast}
-                />
-              </ScaledEditor>
+              <PhotoEditor
+                ref={editorRef}
+                image={activePhoto.dataUrl}
+                minHeight={EDITOR_MIN_HEIGHT}
+                onSave={handleSave}
+                onFailure={showToast}
+              />
             </div>
+            {previewUrl && <PreviewOverlay dataUrl={previewUrl} onClose={() => setPreviewUrl(null)} />}
           </>
         )}
       </PhoneShell>
-
-      <p className={`vi-toast${toastVisible ? ' vi-toast--visible' : ''}`}>{toastMessage}</p>
     </main>
   );
 }
