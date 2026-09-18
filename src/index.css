@@ -373,4 +373,11 @@ body {
   border-radius: 999px;
   font-size: 13px;
   color: var(--vi-amber);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.vi-toast--visible {
+  opacity: 1;
 }
