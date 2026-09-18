@@ -86,3 +86,289 @@ body {
   border-color: transparent;
   color: #1a0b16;
 }
+
+.vi-stage {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.vi-phone {
+  position: relative;
+  width: 390px;
+  height: 780px;
+  background: var(--vi-ink-2);
+  border-radius: var(--vi-radius-phone);
+  border: var(--vi-bezel) solid #000;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vi-phone__notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 26px;
+  background: #000;
+  border-radius: 0 0 16px 16px;
+  z-index: 10;
+}
+
+.vi-phone__screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--vi-ink);
+}
+
+.vi-phone__home {
+  height: 6px;
+  width: 120px;
+  margin: 8px auto 10px;
+  border-radius: 999px;
+  background: var(--vi-hairline);
+}
+
+.vi-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vi-chrome);
+}
+
+.vi-statusbar__stars {
+  display: flex;
+  gap: 2px;
+}
+
+.vi-star {
+  color: var(--vi-muted);
+  font-size: 12px;
+}
+
+.vi-star--filled {
+  color: var(--vi-amber);
+}
+
+.vi-statusbar__icons {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--vi-muted);
+}
+
+.vi-boot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: var(--vi-ink);
+}
+
+.vi-boot__logo {
+  font-size: 56px;
+}
+
+.vi-boot__bar {
+  width: 140px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--vi-hairline);
+  overflow: hidden;
+}
+
+.vi-boot__bar-fill {
+  height: 100%;
+  width: 40%;
+  background: var(--vi-sunset);
+  animation: vi-boot-sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes vi-boot-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.vi-lock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #3a1d5c 0%, transparent 55%),
+    var(--vi-ink);
+}
+
+.vi-lock__clock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.vi-lock__time {
+  font-size: 56px;
+}
+
+.vi-lock__day {
+  color: var(--vi-muted);
+  font-size: 14px;
+}
+
+.vi-lock__unlock {
+  margin: 0 24px 28px;
+}
+
+.vi-home {
+  flex: 1;
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vi-home__title {
+  font-size: 22px;
+}
+
+.vi-appgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.vi-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--vi-chrome);
+  cursor: pointer;
+  font-family: var(--vi-ui);
+}
+
+.vi-app:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vi-app__icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: var(--vi-radius-md);
+  background: var(--vi-glass);
+  border: 1px solid var(--vi-hairline);
+}
+
+.vi-app__label {
+  font-size: 12px;
+  color: var(--vi-muted);
+}
+
+.vi-roll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vi-roll__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+}
+
+.vi-roll__grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.vi-roll__tile {
+  aspect-ratio: 1;
+  border-radius: var(--vi-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--vi-hairline);
+  padding: 0;
+  cursor: pointer;
+}
+
+.vi-roll__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vi-iconbtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--vi-hairline);
+  background: var(--vi-glass);
+  color: var(--vi-chrome);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.vi-editorscreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.vi-editorscreen__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 4px 12px;
+}
+
+.vi-editorscreen__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--vi-muted);
+}
+
+.vi-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--vi-glass);
+  border: 1px solid var(--vi-hairline);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--vi-amber);
+}
