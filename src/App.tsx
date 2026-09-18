@@ -1,22 +1,25 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import PhoneShell from './components/PhoneShell';
 import BootScreen from './components/BootScreen';
 import LockScreen from './components/LockScreen';
 import StatusBar from './components/StatusBar';
 import AppGrid from './components/AppGrid';
 import CameraRoll from './components/CameraRoll';
-import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
+import PhotoEditor, { type SavedImage } from './components/PhotoEditor';
+import ScaledEditor from './components/ScaledEditor';
+import { useToast } from './hooks/useToast';
 import { SEED_ROLL } from './lib/seed';
 import type { AppId, RollPhoto, Screen } from './types';
+
+const EDITOR_BASE_WIDTH = 860;
+const EDITOR_BASE_HEIGHT = 640;
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
-  const [status, setStatus] = useState('');
   const wantedLevel = 0;
-
-  const editorRef = useRef<PhotoEditorHandle>(null);
+  const { message: toastMessage, visible: toastVisible, showToast } = useToast();
 
   const openApp = (id: AppId) => {
     if (id === 'camera') setScreen('roll');
@@ -35,7 +38,7 @@ export default function App() {
   const handleSave = ({ dataUrl }: SavedImage) => {
     const saved: RollPhoto = { id: `edit-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Edited' };
     setRoll((prev) => [saved, ...prev]);
-    setStatus('Saved to camera roll');
+    showToast('Saved to camera roll');
     setScreen('roll');
   };
 
@@ -64,7 +67,7 @@ export default function App() {
               onSelect={openPhoto}
               onUpload={handleUpload}
               onBack={() => setScreen('home')}
-              onUploadError={setStatus}
+              onUploadError={showToast}
             />
           </>
         )}
@@ -79,19 +82,20 @@ export default function App() {
                 </button>
                 <span className="vi-editorscreen__title">Edit</span>
               </div>
-              <PhotoEditor
-                ref={editorRef}
-                image={activePhoto.dataUrl}
-                minHeight={460}
-                onSave={handleSave}
-                onFailure={setStatus}
-              />
+              <ScaledEditor baseWidth={EDITOR_BASE_WIDTH} baseHeight={EDITOR_BASE_HEIGHT}>
+                <PhotoEditor
+                  image={activePhoto.dataUrl}
+                  minHeight={EDITOR_BASE_HEIGHT}
+                  onSave={handleSave}
+                  onFailure={showToast}
+                />
+              </ScaledEditor>
             </div>
           </>
         )}
       </PhoneShell>
 
-      {status && <p className="vi-toast">{status}</p>}
+      <p className={`vi-toast${toastVisible ? ' vi-toast--visible' : ''}`}>{toastMessage}</p>
     </main>
   );
 }
