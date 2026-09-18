@@ -21,7 +21,7 @@ type PhotoEditorProps = {
 };
 
 const PhotoEditor = forwardRef<PhotoEditorHandle, PhotoEditorProps>(function PhotoEditor(
-  { image, projectId, onSave, onCancel, onFailure, onReady, minHeight = 560 },
+  { image, projectId, onSave, onCancel, onFailure, onReady, minHeight = 520 },
   ref
 ) {
   const editorRef = useRef<{ editor?: unknown } | null>(null);
@@ -83,7 +83,7 @@ const PhotoEditor = forwardRef<PhotoEditorHandle, PhotoEditorProps>(function Pho
       options={options}
       minHeight={minHeight}
       ariaLabel="Snapmatic photo editor"
-      wrapperStyle={{ width: '100%', borderRadius: 'var(--vi-radius-lg)', overflow: 'hidden' }}
+            wrapperStyle={{ width: 1400, minWidth: 1400, borderRadius: 'var(--vi-radius-lg)', overflow: 'visible' }}
       onLoad={handleLoad}
       onSave={onSave}
       onCancel={onCancel}

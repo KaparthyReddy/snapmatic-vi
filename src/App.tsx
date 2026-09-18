@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PhoneShell from './components/PhoneShell';
 import BootScreen from './components/BootScreen';
 import LockScreen from './components/LockScreen';
@@ -8,19 +8,48 @@ import CameraRoll from './components/CameraRoll';
 import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
 import PreviewOverlay from './components/PreviewOverlay';
 import { useToast } from './hooks/useToast';
+import { isDrawPanelOpen } from './lib/panelWatch';
 import { SEED_ROLL } from './lib/seed';
 import type { AppId, RollPhoto, Screen } from './types';
-
-const EDITOR_MIN_HEIGHT = 520;
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showDrawNav, setShowDrawNav] = useState(false);
+  const [canvasFocused, setCanvasFocused] = useState(false);
   const wantedLevel = 0;
   const { message: toastMessage, visible: toastVisible, showToast } = useToast();
   const editorRef = useRef<PhotoEditorHandle>(null);
+  const canvasWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (screen !== 'editor') return;
+    const root = canvasWrapRef.current;
+    if (!root) return;
+
+        const check = () => setShowDrawNav(isDrawPanelOpen(root));
+    check();
+
+    const observer = new MutationObserver(check);
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [screen]);
+
+  useEffect(() => {
+    const el = canvasWrapRef.current;
+    if (!el || screen !== 'editor') return;
+
+    const handleScroll = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const threshold = maxScroll / 2;
+      setCanvasFocused(el.scrollLeft > threshold);
+    };
+    handleScroll();
+    el.addEventListener('scroll', handleScroll);
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [screen]);
 
   const openApp = (id: AppId) => {
     if (id === 'camera') setScreen('roll');
@@ -50,6 +79,16 @@ export default function App() {
       return;
     }
     setPreviewUrl(dataUrl);
+  };
+
+  const scrollToCanvas = () => {
+    const el = canvasWrapRef.current;
+    if (!el) return;
+    el.scrollTo({ left: el.scrollWidth - el.clientWidth, behavior: 'smooth' });
+  };
+
+  const scrollToTools = () => {
+    canvasWrapRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
   };
 
   const toastNode = (
@@ -99,13 +138,30 @@ export default function App() {
                   Preview
                 </button>
               </div>
-              <PhotoEditor
-                ref={editorRef}
-                image={activePhoto.dataUrl}
-                minHeight={EDITOR_MIN_HEIGHT}
-                onSave={handleSave}
-                onFailure={showToast}
-              />
+              <div className="vi-editorscreen__canvas-wrap" ref={canvasWrapRef}>
+                <PhotoEditor
+                  ref={editorRef}
+                  image={activePhoto.dataUrl}
+                  onSave={handleSave}
+                  onFailure={showToast}
+                />
+              </div>
+              {showDrawNav && (
+                <div className="vi-scrollnav">
+                  <button
+                    className={`vi-scrollnav__btn${!canvasFocused ? ' vi-scrollnav__btn--active' : ''}`}
+                    onClick={scrollToTools}
+                  >
+                    ⚙ Tools
+                  </button>
+                  <button
+                    className={`vi-scrollnav__btn${canvasFocused ? ' vi-scrollnav__btn--active' : ''}`}
+                    onClick={scrollToCanvas}
+                  >
+                    ✎ Draw
+                  </button>
+                </div>
+              )}
             </div>
             {previewUrl && <PreviewOverlay dataUrl={previewUrl} onClose={() => setPreviewUrl(null)} />}
           </>
