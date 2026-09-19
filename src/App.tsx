@@ -155,7 +155,7 @@ export default function App() {
                 </button>
                 <span className="vi-editorscreen__title">Edit</span>
                 <button className="vi-btn" onClick={openStickers}>
-                  Stickers
+                  Stamps
                 </button>
                 <button className="vi-btn vi-editorscreen__preview" onClick={handlePreview}>
                   Preview

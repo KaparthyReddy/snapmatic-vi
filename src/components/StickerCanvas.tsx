@@ -84,7 +84,7 @@ export default function StickerCanvas({ baseImage, onDone, onCancel, onError }: 
         <button className="vi-iconbtn" onClick={onCancel} aria-label="Back">
           ←
         </button>
-        <span className="vi-editorscreen__title">Stickers</span>
+        <span className="vi-editorscreen__title">Stamps</span>
         <button className="vi-btn vi-btn--primary" onClick={handleDone} disabled={saving}>
           {saving ? 'Saving…' : 'Done'}
         </button>
