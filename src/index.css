@@ -456,3 +456,95 @@ body {
   border-color: transparent;
   color: #1a0b16;
 }
+
+.vi-stickerscreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vi-stickerscreen__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  flex-shrink: 0;
+}
+
+.vi-stickerstage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  margin: 0 12px;
+  border-radius: var(--vi-radius-md);
+  background: #000;
+  touch-action: none;
+}
+
+.vi-stickerstage__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.vi-stickeritem {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.vi-stickeritem svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+.vi-stickeritem--selected {
+  outline: 2px dashed var(--vi-cyan);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.vi-stickertoolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+
+.vi-stickertoolbar input[type='range'] {
+  flex: 1;
+}
+
+.vi-stickertray {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 16px 16px;
+  flex-shrink: 0;
+}
+
+.vi-stickertray__item {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--vi-radius-md);
+  background: var(--vi-glass);
+  border: 1px solid var(--vi-hairline);
+  padding: 6px;
+  cursor: pointer;
+}
+
+.vi-stickertray__item svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
