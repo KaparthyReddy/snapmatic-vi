@@ -7,6 +7,7 @@ import AppGrid from './components/AppGrid';
 import CameraRoll from './components/CameraRoll';
 import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
 import PreviewOverlay from './components/PreviewOverlay';
+import StickerCanvas from './components/StickerCanvas';
 import { useToast } from './hooks/useToast';
 import { isDrawPanelOpen } from './lib/panelWatch';
 import { SEED_ROLL } from './lib/seed';
@@ -16,6 +17,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
+  const [stickerBase, setStickerBase] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showDrawNav, setShowDrawNav] = useState(false);
   const [canvasFocused, setCanvasFocused] = useState(false);
@@ -29,7 +31,7 @@ export default function App() {
     const root = canvasWrapRef.current;
     if (!root) return;
 
-        const check = () => setShowDrawNav(isDrawPanelOpen(root));
+    const check = () => setShowDrawNav(isDrawPanelOpen(root));
     check();
 
     const observer = new MutationObserver(check);
@@ -79,6 +81,24 @@ export default function App() {
       return;
     }
     setPreviewUrl(dataUrl);
+  };
+
+  const openStickers = () => {
+    const dataUrl = editorRef.current?.getImage() ?? activePhoto?.dataUrl;
+    if (!dataUrl) {
+      showToast('Editor is not ready yet');
+      return;
+    }
+    setStickerBase(dataUrl);
+    setScreen('stickers');
+  };
+
+  const handleStickersDone = (dataUrl: string) => {
+    const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped' };
+    setRoll((prev) => [saved, ...prev]);
+    showToast('Saved to camera roll');
+    setStickerBase(null);
+    setScreen('roll');
   };
 
   const scrollToCanvas = () => {
@@ -134,6 +154,9 @@ export default function App() {
                   ←
                 </button>
                 <span className="vi-editorscreen__title">Edit</span>
+                <button className="vi-btn" onClick={openStickers}>
+                  Stickers
+                </button>
                 <button className="vi-btn vi-editorscreen__preview" onClick={handlePreview}>
                   Preview
                 </button>
@@ -164,6 +187,18 @@ export default function App() {
               )}
             </div>
             {previewUrl && <PreviewOverlay dataUrl={previewUrl} onClose={() => setPreviewUrl(null)} />}
+          </>
+        )}
+
+        {screen === 'stickers' && stickerBase && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <StickerCanvas
+              baseImage={stickerBase}
+              onDone={handleStickersDone}
+              onCancel={() => setScreen('editor')}
+              onError={showToast}
+            />
           </>
         )}
       </PhoneShell>
