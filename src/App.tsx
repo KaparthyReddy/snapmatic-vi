@@ -9,6 +9,7 @@ import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './componen
 import PreviewOverlay from './components/PreviewOverlay';
 import StickerCanvas from './components/StickerCanvas';
 import FeedScreen from './components/FeedScreen';
+import PostDetail from './components/PostDetail';
 import { useToast } from './hooks/useToast';
 import { isDrawPanelOpen } from './lib/panelWatch';
 import { computeHeat } from './lib/heatScore';
@@ -21,6 +22,7 @@ export default function App() {
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
   const [feed, setFeed] = useState<FeedPost[]>([]);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
+  const [activePost, setActivePost] = useState<FeedPost | null>(null);
   const [stickerBase, setStickerBase] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showDrawNav, setShowDrawNav] = useState(false);
@@ -74,11 +76,21 @@ export default function App() {
   };
 
   const handleSave = async ({ dataUrl }: SavedImage) => {
-    const heat = activePhoto ? await computeHeat(activePhoto.dataUrl, dataUrl, 0) : 0;
-    const saved: RollPhoto = { id: `edit-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Edited', heat };
-    setRoll((prev) => [saved, ...prev]);
-    showToast('Saved to camera roll');
-    setScreen('roll');
+    try {
+      const heat = activePhoto ? await computeHeat(activePhoto.dataUrl, dataUrl, 0) : 0;
+      const saved: RollPhoto = {
+        id: `edit-${Date.now()}`,
+        dataUrl,
+        savedAt: Date.now(),
+        label: 'Edited',
+        heat,
+      };
+      setRoll((prev) => [saved, ...prev]);
+      showToast('Saved to camera roll');
+      setScreen('roll');
+    } catch (error) {
+      showToast((error as Error).message || 'Could not save edited photo');
+    }
   };
 
   const handlePreview = () => {
@@ -103,7 +115,13 @@ export default function App() {
   const handleStickersDone = async (dataUrl: string, stampCount: number) => {
     try {
       const heat = stickerBase ? await computeHeat(stickerBase, dataUrl, stampCount) : 0;
-      const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped', heat };
+      const saved: RollPhoto = {
+        id: `stamp-${Date.now()}`,
+        dataUrl,
+        savedAt: Date.now(),
+        label: 'Stamped',
+        heat,
+      };
       setRoll((prev) => [saved, ...prev]);
       showToast('Saved to camera roll');
       setStickerBase(null);
@@ -115,9 +133,9 @@ export default function App() {
 
   const handlePost = (photo: RollPhoto) => {
     try {
+      if (!photo.dataUrl) throw new Error('Photo data missing');
       const heat = photo.heat ?? 0;
       const comments = generateComments(heat);
-      if (!photo.dataUrl) throw new Error('Photo data missing');
       const post: FeedPost = {
         id: `post-${Date.now()}`,
         dataUrl: photo.dataUrl,
@@ -238,7 +256,21 @@ export default function App() {
         {screen === 'feed' && (
           <>
             <StatusBar wantedLevel={wantedLevel} />
-            <FeedScreen posts={feed} onBack={() => setScreen('home')} />
+            <FeedScreen
+              posts={feed}
+              onBack={() => setScreen('home')}
+              onOpenPost={(post) => {
+                setActivePost(post);
+                setScreen('post-detail');
+              }}
+            />
+          </>
+        )}
+
+        {screen === 'post-detail' && activePost && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <PostDetail post={activePost} onBack={() => setScreen('feed')} />
           </>
         )}
       </PhoneShell>

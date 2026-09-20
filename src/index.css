@@ -141,10 +141,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 22px 6px;
+  padding: 30px 22px 6px;
   font-size: 13px;
   font-weight: 600;
   color: var(--vi-chrome);
+  position: relative;
+  z-index: 1;
 }
 
 .vi-statusbar__stars {
@@ -155,6 +157,8 @@ body {
 .vi-star {
   color: var(--vi-muted);
   font-size: 12px;
+  line-height: 1;
+  display: inline-block;
 }
 
 .vi-star--filled {
@@ -578,11 +582,14 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .vi-feed__list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
@@ -597,17 +604,38 @@ body {
 }
 
 .vi-feed__post {
+  flex-shrink: 0;
   border: 1px solid var(--vi-hairline);
   border-radius: var(--vi-radius-md);
   overflow: hidden;
   background: var(--vi-glass);
 }
 
+.vi-feed__imagewrap {
+  position: relative;
+}
+
 .vi-feed__image {
   width: 100%;
   display: block;
-  aspect-ratio: 1;
-  object-fit: cover;
+  height: auto;
+}
+
+.vi-feed__commenticon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(11, 7, 20, 0.75);
+  color: var(--vi-chrome);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vi-feed__comments {
@@ -621,6 +649,10 @@ body {
   font-size: 12px;
   margin: 0;
   color: var(--vi-chrome);
+}
+
+.vi-feed__comment--preview {
+  padding: 6px 12px 10px;
 }
 
 .vi-feed__handle {

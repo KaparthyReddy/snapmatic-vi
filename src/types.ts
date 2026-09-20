@@ -1,4 +1,4 @@
-export type Screen = 'boot' | 'lock' | 'home' | 'roll' | 'editor' | 'stickers' | 'feed';
+export type Screen = 'boot' | 'lock' | 'home' | 'roll' | 'editor' | 'stickers' | 'feed' | 'post-detail';
 
 export type AppId = 'camera' | 'feed' | 'settings';
 
