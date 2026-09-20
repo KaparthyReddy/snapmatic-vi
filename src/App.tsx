@@ -8,23 +8,28 @@ import CameraRoll from './components/CameraRoll';
 import PhotoEditor, { type PhotoEditorHandle, type SavedImage } from './components/PhotoEditor';
 import PreviewOverlay from './components/PreviewOverlay';
 import StickerCanvas from './components/StickerCanvas';
+import FeedScreen from './components/FeedScreen';
 import { useToast } from './hooks/useToast';
 import { isDrawPanelOpen } from './lib/panelWatch';
+import { computeHeat } from './lib/heatScore';
+import { generateComments } from './lib/npc';
 import { SEED_ROLL } from './lib/seed';
-import type { AppId, RollPhoto, Screen } from './types';
+import type { AppId, FeedPost, RollPhoto, Screen } from './types';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [roll, setRoll] = useState<RollPhoto[]>(SEED_ROLL);
+  const [feed, setFeed] = useState<FeedPost[]>([]);
   const [activePhoto, setActivePhoto] = useState<RollPhoto | null>(null);
   const [stickerBase, setStickerBase] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showDrawNav, setShowDrawNav] = useState(false);
   const [canvasFocused, setCanvasFocused] = useState(false);
-  const wantedLevel = 0;
   const { message: toastMessage, visible: toastVisible, showToast } = useToast();
   const editorRef = useRef<PhotoEditorHandle>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
+
+  const wantedLevel = feed.length > 0 ? Math.max(...feed.map((p) => p.heat)) : 0;
 
   useEffect(() => {
     if (screen !== 'editor') return;
@@ -55,6 +60,7 @@ export default function App() {
 
   const openApp = (id: AppId) => {
     if (id === 'camera') setScreen('roll');
+    if (id === 'feed') setScreen('feed');
   };
 
   const openPhoto = (photo: RollPhoto) => {
@@ -67,8 +73,9 @@ export default function App() {
     openPhoto(photo);
   };
 
-  const handleSave = ({ dataUrl }: SavedImage) => {
-    const saved: RollPhoto = { id: `edit-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Edited' };
+  const handleSave = async ({ dataUrl }: SavedImage) => {
+    const heat = activePhoto ? await computeHeat(activePhoto.dataUrl, dataUrl, 0) : 0;
+    const saved: RollPhoto = { id: `edit-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Edited', heat };
     setRoll((prev) => [saved, ...prev]);
     showToast('Saved to camera roll');
     setScreen('roll');
@@ -93,12 +100,22 @@ export default function App() {
     setScreen('stickers');
   };
 
-  const handleStickersDone = (dataUrl: string) => {
-    const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped' };
+  const handleStickersDone = async (dataUrl: string, stampCount: number) => {
+    const heat = stickerBase ? await computeHeat(stickerBase, dataUrl, stampCount) : 0;
+    const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped', heat };
     setRoll((prev) => [saved, ...prev]);
     showToast('Saved to camera roll');
     setStickerBase(null);
     setScreen('roll');
+  };
+
+  const handlePost = (photo: RollPhoto) => {
+    const heat = photo.heat ?? 0;
+    const comments = generateComments(heat);
+    const post: FeedPost = { id: `post-${Date.now()}`, dataUrl: photo.dataUrl, heat, comments, postedAt: Date.now() };
+    setFeed((prev) => [post, ...prev]);
+    showToast('Posted to Vice Feed');
+    setScreen('feed');
   };
 
   const scrollToCanvas = () => {
@@ -141,6 +158,7 @@ export default function App() {
               onUpload={handleUpload}
               onBack={() => setScreen('home')}
               onUploadError={showToast}
+              onPost={handlePost}
             />
           </>
         )}
@@ -199,6 +217,13 @@ export default function App() {
               onCancel={() => setScreen('editor')}
               onError={showToast}
             />
+          </>
+        )}
+
+        {screen === 'feed' && (
+          <>
+            <StatusBar wantedLevel={wantedLevel} />
+            <FeedScreen posts={feed} onBack={() => setScreen('home')} />
           </>
         )}
       </PhoneShell>
