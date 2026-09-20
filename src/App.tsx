@@ -101,21 +101,36 @@ export default function App() {
   };
 
   const handleStickersDone = async (dataUrl: string, stampCount: number) => {
-    const heat = stickerBase ? await computeHeat(stickerBase, dataUrl, stampCount) : 0;
-    const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped', heat };
-    setRoll((prev) => [saved, ...prev]);
-    showToast('Saved to camera roll');
-    setStickerBase(null);
-    setScreen('roll');
+    try {
+      const heat = stickerBase ? await computeHeat(stickerBase, dataUrl, stampCount) : 0;
+      const saved: RollPhoto = { id: `stamp-${Date.now()}`, dataUrl, savedAt: Date.now(), label: 'Stamped', heat };
+      setRoll((prev) => [saved, ...prev]);
+      showToast('Saved to camera roll');
+      setStickerBase(null);
+      setScreen('roll');
+    } catch (error) {
+      showToast((error as Error).message || 'Could not save stamped photo');
+    }
   };
 
   const handlePost = (photo: RollPhoto) => {
-    const heat = photo.heat ?? 0;
-    const comments = generateComments(heat);
-    const post: FeedPost = { id: `post-${Date.now()}`, dataUrl: photo.dataUrl, heat, comments, postedAt: Date.now() };
-    setFeed((prev) => [post, ...prev]);
-    showToast('Posted to Vice Feed');
-    setScreen('feed');
+    try {
+      const heat = photo.heat ?? 0;
+      const comments = generateComments(heat);
+      if (!photo.dataUrl) throw new Error('Photo data missing');
+      const post: FeedPost = {
+        id: `post-${Date.now()}`,
+        dataUrl: photo.dataUrl,
+        heat,
+        comments,
+        postedAt: Date.now(),
+      };
+      setFeed((prev) => [post, ...prev]);
+      showToast('Posted to Vice Feed');
+      setScreen('feed');
+    } catch (error) {
+      showToast((error as Error).message || 'Could not post to feed');
+    }
   };
 
   const scrollToCanvas = () => {
