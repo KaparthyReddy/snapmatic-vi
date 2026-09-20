@@ -8,9 +8,17 @@ type CameraRollProps = {
   onUpload: (photo: RollPhoto) => void;
   onBack: () => void;
   onUploadError: (message: string) => void;
+  onPost: (photo: RollPhoto) => void;
 };
 
-export default function CameraRoll({ photos, onSelect, onUpload, onBack, onUploadError }: CameraRollProps) {
+export default function CameraRoll({
+  photos,
+  onSelect,
+  onUpload,
+  onBack,
+  onUploadError,
+  onPost,
+}: CameraRollProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File | undefined) => {
@@ -45,9 +53,21 @@ export default function CameraRoll({ photos, onSelect, onUpload, onBack, onUploa
       </div>
       <div className="vi-roll__grid">
         {photos.map((photo) => (
-          <button key={photo.id} className="vi-roll__tile" onClick={() => onSelect(photo)}>
-            <img src={photo.dataUrl} alt={photo.label ?? 'Saved photo'} />
-          </button>
+          <div key={photo.id} className="vi-roll__tile">
+            <button className="vi-roll__tile-img" onClick={() => onSelect(photo)}>
+              <img src={photo.dataUrl} alt={photo.label ?? 'Saved photo'} />
+            </button>
+            <button
+              className="vi-roll__tile-post"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPost(photo);
+              }}
+              aria-label="Post to Vice Feed"
+            >
+              📡
+            </button>
+          </div>
         ))}
       </div>
     </div>
