@@ -5,7 +5,7 @@ import type { PlacedSticker } from '../types';
 
 type StickerCanvasProps = {
   baseImage: string;
-  onDone: (dataUrl: string) => void;
+  onDone: (dataUrl: string, stampCount: number) => void;
   onCancel: () => void;
   onError: (message: string) => void;
 };
@@ -69,7 +69,7 @@ export default function StickerCanvas({ baseImage, onDone, onCancel, onError }: 
     setSaving(true);
     try {
       const dataUrl = await compositeStickers(baseImage, placed);
-      onDone(dataUrl);
+      onDone(dataUrl, placed.length);
     } catch (error) {
       onError((error as Error).message);
       setSaving(false);
