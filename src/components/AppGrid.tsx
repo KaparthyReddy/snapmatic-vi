@@ -9,7 +9,7 @@ type AppDef = {
 
 const APPS: AppDef[] = [
   { id: 'camera', label: 'Camera', icon: '📷' },
-  { id: 'feed', label: 'Vice Feed', icon: '📡', disabled: true },
+  { id: 'feed', label: 'Vice Feed', icon: '📡' },
   { id: 'settings', label: 'Settings', icon: '⚙️', disabled: true },
 ];
 
