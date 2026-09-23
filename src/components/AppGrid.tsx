@@ -15,17 +15,17 @@ const APPS: AppDef[] = [
 
 type AppGridProps = {
   onOpen: (id: AppId) => void;
+  onDisabledTap?: () => void;
 };
 
-export default function AppGrid({ onOpen }: AppGridProps) {
+export default function AppGrid({ onOpen, onDisabledTap }: AppGridProps) {
   return (
     <div className="vi-appgrid">
       {APPS.map((app) => (
         <button
           key={app.id}
           className="vi-app"
-          disabled={app.disabled}
-          onClick={() => onOpen(app.id)}
+          onClick={() => (app.disabled ? onDisabledTap?.() : onOpen(app.id))}
           title={app.disabled ? 'Coming soon' : app.label}
         >
           <span className="vi-app__icon">{app.icon}</span>

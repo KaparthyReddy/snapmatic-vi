@@ -31,8 +31,20 @@ export default function App() {
   const editorRef = useRef<PhotoEditorHandle>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
 
-  const wantedLevel = feed.length > 0 ? Math.max(...feed.map((p) => p.heat)) : 0;
+  const [wantedLevel, setWantedLevel] = useState(0);
 
+  useEffect(() => {
+    if (feed.length === 0) {
+      setWantedLevel(0);
+      return;
+    }
+    const latestHeat = feed[0].heat;
+    setWantedLevel((prev) => {
+      if (latestHeat > prev) return latestHeat;
+      return Math.max(0, prev - 1);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feed.length]);
   useEffect(() => {
     if (screen !== 'editor') return;
     const root = canvasWrapRef.current;
@@ -114,7 +126,11 @@ export default function App() {
 
   const handleStickersDone = async (dataUrl: string, stampCount: number) => {
     try {
-      const heat = stickerBase ? await computeHeat(stickerBase, dataUrl, stampCount) : 0;
+      // Score against the ORIGINAL photo, not the mid-session editor snapshot —
+      // otherwise any drawing/filter work done before opening Stamps gets
+      // baked into the "before" image and silently drops out of the heat score.
+      const originalRef = activePhoto?.dataUrl ?? stickerBase;
+      const heat = originalRef ? await computeHeat(originalRef, dataUrl, stampCount) : 0;
       const saved: RollPhoto = {
         id: `stamp-${Date.now()}`,
         dataUrl,
@@ -177,7 +193,7 @@ export default function App() {
             <StatusBar wantedLevel={wantedLevel} />
             <div className="vi-home">
               <div className="vi-home__title vi-display vi-gradient-text">Leonida</div>
-              <AppGrid onOpen={openApp} />
+              <AppGrid onOpen={openApp} onDisabledTap={() => showToast('Coming soon')} />
             </div>
           </>
         )}
