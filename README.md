@@ -21,7 +21,13 @@ Snapmatic VI wraps [`@unlayer/react-image-editor`](https://github.com/unlayer/re
 
 ## Screenshots
 
-*(add a hero GIF or 3–4 screenshots here before submitting — boot sequence, editor mid-edit, Stamps screen, Vice Feed with wanted stars)*
+<img width="438" height="808" alt="image" src="https://github.com/user-attachments/assets/c2ad2eac-1145-40e8-bb92-bd8b744de01d" />
+
+<img width="428" height="810" alt="image" src="https://github.com/user-attachments/assets/5fe66734-4af4-4e5f-a85a-c15eb6dd836c" />
+
+<img width="427" height="804" alt="image" src="https://github.com/user-attachments/assets/1ec3b2c8-ba9a-442f-ac67-7a299272e1f0" />
+
+<img width="443" height="807" alt="image" src="https://github.com/user-attachments/assets/d27b5068-2ca4-4382-90e0-03e45f56081d" />
 
 ## Tech
 
