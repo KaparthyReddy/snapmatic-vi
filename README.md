@@ -6,6 +6,8 @@ Built for Unlayer's **Build with React Image Editor** challenge.
 
 > Original work. Not affiliated with or endorsed by Rockstar Games. No Rockstar assets, characters, or trademarks are used — all visuals, copy, and UI are original.
 
+**🔗 Live demo: [snapmatic-vi.vercel.app](https://snapmatic-vi.vercel.app/)**
+
 ## What it is
 
 Snapmatic VI wraps [`@unlayer/react-image-editor`](https://github.com/unlayer/react-image-editor) inside a fully custom, self-contained phone interface — boot animation, lock screen, home grid, camera roll, and a social feed — all built from scratch around the editor rather than the editor being the whole app.
@@ -42,6 +44,10 @@ Snapmatic VI wraps [`@unlayer/react-image-editor`](https://github.com/unlayer/re
 The React Image Editor isn't a bolted-on feature — it's the app's core interaction. It's mounted inside `src/components/PhotoEditor.tsx`, themed dark to match the phone's chrome, docked left, with the Resize tool hidden to keep the toolset focused. Because the embedded editor renders at a fixed internal width regardless of its container, the editing screen uses a horizontal scroll pattern (`Tools ⚙ / Draw ✎`) so the full toolset and canvas both stay reachable inside the phone frame without ever clipping — see `src/App.tsx` for the scroll-sync logic.
 
 ## Local setup
+
+Try it live at [snapmatic-vi.vercel.app](https://snapmatic-vi.vercel.app/) — no setup required.
+
+To run locally instead:
 
 ```bash
 npm install
